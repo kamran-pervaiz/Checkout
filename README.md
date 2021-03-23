@@ -101,7 +101,7 @@ dotnet run WebApi.csproj
 
 ```json
 {
-    "transactionId": "79bf18b4-63fb-4c6d-aa4b-380d15a41b56", //for refund: 
+    "transactionId": "79bf18b4-63fb-4c6d-aa4b-380d15a41b56",
     "amount": 6
 }
 ```
