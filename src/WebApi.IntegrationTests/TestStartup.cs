@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace WebApi.IntegrationTests
 {
@@ -14,9 +12,7 @@ namespace WebApi.IntegrationTests
                 {
                     //if want to add Test specific configurations
                 })
-                .ConfigureServices(services =>
-                {
-                });
+                .ConfigureServices(services => { });
 
             base.ConfigureWebHost(builder);
         }

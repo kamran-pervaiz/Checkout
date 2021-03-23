@@ -24,7 +24,7 @@ namespace WebAPI
 
                 await ApplicationDbContextSeed.SeedSampleDataAsync(context);
             }
-            
+
             await host.RunAsync();
         }
 

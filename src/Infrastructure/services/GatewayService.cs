@@ -27,6 +27,11 @@ namespace Infrastructure.services
                 throw new ValidationException("Authorization failed, card is blacklisted");
             }
 
+            if (!ValidationHelper.Luhn(customerDto.CardNumber))
+            {
+                throw new ValidationException("Credit Card failed Luhn validation");
+            }
+
             var customer = new CustomerMapper().Map(customerDto);
             await repository.AddAsync(customer);
             return new AuthorizeResponse(customerDto.Amount, customerDto.Currency, customer.Id);
@@ -35,7 +40,7 @@ namespace Infrastructure.services
         public async Task<PaymentResponse> Capture(TransactionDto transactionDto)
         {
             var customer = await repository.GetByIdWithIncludeAsync<Customer>(
-                transactionDto.TransactionId, new[] { Constants.TransactionHistories });
+                transactionDto.TransactionId, new[] {Constants.TransactionHistories});
 
             if (customer.Status == Status.Refunded || customer.Status == Status.Void)
             {
@@ -52,7 +57,7 @@ namespace Infrastructure.services
                 Amount = transactionDto.Amount,
                 Type = TransactionType.Capture
             });
-           
+
 
             await repository.UpdateAsync(customer);
 
@@ -62,7 +67,7 @@ namespace Infrastructure.services
         public async Task<PaymentResponse> Refund(TransactionDto transactionDto)
         {
             var customer = await repository.GetByIdWithIncludeAsync<Customer>(
-                transactionDto.TransactionId, new[] { Constants.TransactionHistories });
+                transactionDto.TransactionId, new[] {Constants.TransactionHistories});
 
             if (customer.Status == Status.Refunded || customer.Status == Status.Void)
             {
@@ -99,7 +104,7 @@ namespace Infrastructure.services
         public async Task<PaymentResponse> Cancel(TransactionDto transactionDto)
         {
             var customer = await repository.GetByIdWithIncludeAsync<Customer>(
-                transactionDto.TransactionId, new[] { Constants.TransactionHistories });
+                transactionDto.TransactionId, new[] {Constants.TransactionHistories});
 
             if (customer.Status == Status.Void)
             {
@@ -133,7 +138,7 @@ namespace Infrastructure.services
         private static bool IsCustomerBlackListed(string creditNumber)
         {
             //this should be coming from database but for simplicity adding in a list
-            var blackListCards = new List<string> { "4000 0000 0000 0119" };
+            var blackListCards = new List<string> {"4000 0000 0000 0119"};
 
             var match = blackListCards.FirstOrDefault(s => s.Contains(creditNumber));
 

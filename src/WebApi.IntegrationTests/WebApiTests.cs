@@ -142,7 +142,7 @@ namespace WebApi.IntegrationTests
             var customerDto = new CustomerDto
             {
                 Amount = amount,
-                CardNumber = "1234567898765432",
+                CardNumber = "6331101999990016",
                 Currency = "gbp",
                 Cvv = 123,
                 ExpiryMonth = DateTime.Now.Month.ToString(),

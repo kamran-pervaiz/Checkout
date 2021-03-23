@@ -1,10 +1,10 @@
-using Application.Common.Interfaces;
-using Moq;
-using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
+using Application.Common.Interfaces;
 using Application.Dto;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
+using NUnit.Framework;
 using Shouldly;
 using WebAPI.Controllers;
 
@@ -15,6 +15,21 @@ namespace WebApi.UnitTests.Controllers
     {
         private Mock<IGatewayService> mockGatewayService;
         private GatewayController systemUnderTest;
+
+        private static TransactionDto GetPaymentDto()
+        {
+            return new TransactionDto
+            {
+                TransactionId = Guid.NewGuid(),
+                Amount = 3
+            };
+        }
+
+        private static void AssertOkResult(OkObjectResult okResult)
+        {
+            okResult.ShouldNotBeNull();
+            okResult.StatusCode.ShouldBe(200);
+        }
 
         [SetUp]
         public void SetUp()
@@ -49,6 +64,20 @@ namespace WebApi.UnitTests.Controllers
         }
 
         [Test]
+        public async Task Cancel_ShouldReturnOriginalAmount()
+        {
+            var paymentDto = GetPaymentDto();
+            mockGatewayService.Setup(m => m.Cancel(paymentDto))
+                .ReturnsAsync(new PaymentResponse(1, "dollar"));
+
+            var result = await systemUnderTest.Cancel(paymentDto);
+            var okResult = result as OkObjectResult;
+
+            mockGatewayService.Verify(m => m.Cancel(paymentDto), Times.Once);
+            AssertOkResult(okResult);
+        }
+
+        [Test]
         public async Task Capture_ShouldReturnRemainingAmount()
         {
             var paymentDto = GetPaymentDto();
@@ -74,35 +103,6 @@ namespace WebApi.UnitTests.Controllers
 
             mockGatewayService.Verify(m => m.Refund(paymentDto), Times.Once);
             AssertOkResult(okResult);
-        }
-
-        [Test]
-        public async Task Cancel_ShouldReturnOriginalAmount()
-        {
-            var paymentDto = GetPaymentDto();
-            mockGatewayService.Setup(m => m.Cancel(paymentDto))
-                .ReturnsAsync(new PaymentResponse(1, "dollar"));
-
-            var result = await systemUnderTest.Cancel(paymentDto);
-            var okResult = result as OkObjectResult;
-
-            mockGatewayService.Verify(m => m.Cancel(paymentDto), Times.Once);
-            AssertOkResult(okResult);
-        }
-
-        private static TransactionDto GetPaymentDto()
-        {
-            return new TransactionDto
-            {
-                TransactionId = Guid.NewGuid(),
-                Amount = 3
-            };
-        }
-
-        private static void AssertOkResult(OkObjectResult okResult)
-        {
-            okResult.ShouldNotBeNull();
-            okResult.StatusCode.ShouldBe(200);
         }
     }
 }
